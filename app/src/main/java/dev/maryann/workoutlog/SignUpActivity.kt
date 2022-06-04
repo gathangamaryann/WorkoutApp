@@ -41,7 +41,7 @@ class SignUpActivity : AppCompatActivity() {
         txtLastName= findViewById(R.id.txtLastName)
         txtFirstName=findViewById(R.id.txtFirstName)
         tilEmail=findViewById(R.id.tilEmail)
-        tvLogIn=findViewById(R.id.tvLogIn)
+        tvLogIn=findViewById(R.id.tvSignUp)
 
 
         tvLogIn.setOnClickListener {

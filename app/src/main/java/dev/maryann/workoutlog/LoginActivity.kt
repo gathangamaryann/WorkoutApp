@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.widget.Button
+import android.widget.TextView
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 
@@ -14,7 +15,7 @@ class LoginActivity : AppCompatActivity() {
     lateinit var tilPassword: TextInputLayout
     lateinit var txtEmail:TextInputEditText
     lateinit var txtPassword:TextInputEditText
-    lateinit var tvSignUp:TextInputEditText
+    lateinit var tvSignUp:TextView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -24,7 +25,7 @@ class LoginActivity : AppCompatActivity() {
         tilPassword=findViewById(R.id.tilPassword)
         txtEmail=findViewById(R.id.txtEmail)
         txtPassword=findViewById(R.id.txtPassword)
-        tvSignUp=findViewById(R.id.tvSignUp)
+        tvSignUp=findViewById(R.id.tvLogIn)
         tvSignUp.setOnClickListener {
             val intent=Intent(this,SignUpActivity::class.java)
             startActivity(intent)
