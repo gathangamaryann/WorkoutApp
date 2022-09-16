@@ -1,13 +1,18 @@
-package dev.maryann.workoutlog
+package dev.maryann.workoutlog.ui
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Button
-import android.widget.TextView
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
+import android.widget.Toast
+import dev.maryann.workoutlog.R
 import dev.maryann.workoutlog.databinding.ActivitySignUpBinding
+import dev.maryann.workoutlog.models.RegisterRequest
+import dev.maryann.workoutlog.models.RegisterResponse
+import dev.maryann.workoutlog.api.ApiClient
+import dev.maryann.workoutlog.api.ApiInterface
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class SignUpActivity : AppCompatActivity() {
     lateinit var binding: ActivitySignUpBinding
@@ -15,18 +20,20 @@ class SignUpActivity : AppCompatActivity() {
 
 
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+
+    override fun onResume(){
+        super.onResume()
         setContentView(R.layout.activity_sign_up)
         binding= ActivitySignUpBinding.inflate(layoutInflater)
 
 
 
       binding.tvSignUp.setOnClickListener {
-            val intent=Intent(this,LoginActivity::class.java)
+            val intent=Intent(this, LoginActivity::class.java)
             startActivity((intent))
         }
        binding. btnSignUp.setOnClickListener {
+
             validateSignUp()
         }
 
@@ -71,9 +78,46 @@ class SignUpActivity : AppCompatActivity() {
 
         }
         if (!error){
-
+            val registerRequest=RegisterRequest("Mary","Gathanga","marygathanga@gmail.com","0742277565","mary2000")
+          makeRegisterationRequest(registerRequest)
         }
+
     }
+    fun makeRegisterationRequest(registerRequest: RegisterRequest){
+        var apiClient=ApiClient.buildApiClient(ApiInterface::class.java)
+        var request=apiClient.registerUser(registerRequest)
+
+        request.enqueue(object : Callback<RegisterResponse> {
+            override fun onResponse(
+                call: Call<RegisterResponse>,
+                response: Response<RegisterResponse>
+            ) {
+                if (response.isSuccessful){
+                    var message=response.body()?.message
+                    Toast.makeText(baseContext,message,Toast.LENGTH_LONG).show()
+                    //intent to login
+
+                }else{
+                    val error=response.errorBody()?.string()
+                    Toast.makeText(baseContext,error,Toast.LENGTH_LONG).show()
+
+                }
+            }
+
+            override fun onFailure(call: Call<RegisterResponse>, t: Throwable) {
+                Toast.makeText(baseContext,t.message,Toast.LENGTH_LONG).show()
+
+
+            }
+        })
+
+    }
+
+
+
+
+
+
 
 
 

@@ -1,3 +1,12 @@
 package dev.maryann.workoutlog.models
 
-data class Users()
+import com.google.gson.annotations.SerializedName
+
+data class Users(
+    @SerializedName("phone_number")var phoneNumber:String,
+    @SerializedName("first_name") var firstName:String,
+    @SerializedName("last_name")var lastName:String,
+    var email:String,
+    @SerializedName("user_id")var userId:String
+
+)
