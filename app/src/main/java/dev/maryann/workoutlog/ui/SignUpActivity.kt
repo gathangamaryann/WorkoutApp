@@ -1,125 +1,105 @@
 package dev.maryann.workoutlog.ui
 
 import android.content.Intent
+import android.content.SharedPreferences
+import android.database.Observable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.viewModels
+import androidx.lifecycle.Observer
 import dev.maryann.workoutlog.R
 import dev.maryann.workoutlog.databinding.ActivitySignUpBinding
 import dev.maryann.workoutlog.models.RegisterRequest
 import dev.maryann.workoutlog.models.RegisterResponse
 import dev.maryann.workoutlog.api.ApiClient
 import dev.maryann.workoutlog.api.ApiInterface
+import dev.maryann.workoutlog.viewmodel.UserViewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class SignUpActivity : AppCompatActivity() {
+class SignupActivity : AppCompatActivity() {
     lateinit var binding: ActivitySignUpBinding
-
-
-
-
-
-    override fun onResume(){
-        super.onResume()
-        setContentView(R.layout.activity_sign_up)
+    val userViewModel: UserViewModel by viewModels()
+    lateinit var sharedPrefs: SharedPreferences
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        sharedPrefs=getSharedPreferences("WORKOUTLOG_PREFS", MODE_PRIVATE)
         binding= ActivitySignUpBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
+        binding.btnSignUp.setOnClickListener {
+            validateSignup()
 
-
-      binding.tvSignUp.setOnClickListener {
+        }
+        binding.tvSignUp.setOnClickListener {
             val intent=Intent(this, LoginActivity::class.java)
-            startActivity((intent))
+            startActivity(intent)
         }
-       binding. btnSignUp.setOnClickListener {
-
-            validateSignUp()
-        }
-
     }
 
-
-    fun validateSignUp() {
-        var error = false
-      binding.txtEmail.error = null
-      binding.tilPassword.error = null
-       binding.tilFirstName.error=null
-       binding.tilConfirm.error=null
-        var email =binding.txtEmail.text.toString()
-        if (email.isBlank()) {
-           binding.tilEmail.error = "Error is required "
-            error = true
-
-
-        }
-        var first=binding.txtFirstName.text.toString()
-        if (first.isBlank()) {
-          binding.tilFirstName.error = "First name is required"
-            error = true
-        }
-        var last=binding.txtLastName.text.toString()
-        if (last.isBlank()) {
-           binding. tilLastName.error = "Last name is required"
-            error = true
-        }
-
-        var password=binding.txtPassword.text.toString()
-
-        if (password.isBlank()) {
-           binding.tilPassword .error = "Password is required"
-            error = true
-
-        }
-        var confirm=binding.txtConfirm.text.toString()
-        if (confirm.isBlank()) {
-            binding.tilConfirm.error = "Confirm Password"
-            error = true
-
-        }
-        if (!error){
-            val registerRequest=RegisterRequest("Mary","Gathanga","marygathanga@gmail.com","0742277565","mary2000")
-          makeRegisterationRequest(registerRequest)
-        }
-
-    }
-    fun makeRegisterationRequest(registerRequest: RegisterRequest){
-        var apiClient=ApiClient.buildApiClient(ApiInterface::class.java)
-        var request=apiClient.registerUser(registerRequest)
-
-        request.enqueue(object : Callback<RegisterResponse> {
-            override fun onResponse(
-                call: Call<RegisterResponse>,
-                response: Response<RegisterResponse>
-            ) {
-                if (response.isSuccessful){
-                    var message=response.body()?.message
-                    Toast.makeText(baseContext,message,Toast.LENGTH_LONG).show()
-                    //intent to login
-
-                }else{
-                    val error=response.errorBody()?.string()
-                    Toast.makeText(baseContext,error,Toast.LENGTH_LONG).show()
-
-                }
-            }
-
-            override fun onFailure(call: Call<RegisterResponse>, t: Throwable) {
-                Toast.makeText(baseContext,t.message,Toast.LENGTH_LONG).show()
-
-
-            }
+    override fun onResume() {
+        super.onResume()
+        userViewModel.registerResponseLiveData.observe(this, Observer { registerResponse->
+            Toast.makeText(baseContext,registerResponse?.message,Toast.LENGTH_LONG).show()
+            startActivity(Intent(this@SignupActivity,LoginActivity::class.java))
         })
-
+        userViewModel.registerErrorLiveData.observe(this, Observer { error->
+            Toast.makeText(baseContext,error,Toast.LENGTH_LONG).show()
+        })
     }
 
 
 
+    fun validateSignup() {
+        var name = binding.txtFirstName.text.toString()
+        var second = binding.txtLastName.text.toString()
+        var phone = binding.txtphoneNumber.text.toString()
+        var email = binding.txtEmail.text.toString()
+        var error = false
+        if (name.isBlank()) {
+            binding.tilFirstName.error = "Firstname required"
+        }
+        if (second.isBlank()) {
+            binding.tilLastName.error = "second name required"
+
+        }
+        if (phone.isBlank()) {
+            binding.tilphonenumber.error = "Phone number required"
+
+        }
+        if (email.isBlank()) {
+            binding.tilEmail.error = "Email reuired"
+        }
 
 
+        var confirm = binding.txtConfirm.text.toString()
+        var password = binding.txtPassword.text.toString()
+        if (confirm.isBlank()) {
+            binding.tilConfirm.error = "confirm password"
+        } else {
+            binding.tilConfirm.error = null
+
+        }
+        if (password.isBlank()) {
+            binding.tilPassword.error = "enter password"
+        }
+        if (confirm == password) {
+            binding.btnSignUp
+        } else {
+            binding.tilConfirm.error = "invalid password"
+        }
+        if (!error) {
+            val registerRequests = RegisterRequest(name, second, email, phone, password)
+            userViewModel.registeruser(registerRequests)
+
+        }
 
 
+    }
 
 
 }
+
 
